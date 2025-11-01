@@ -1,0 +1,86 @@
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 20px;
+  background-color: #f5f5f5;
+}
+
+.form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.gallery {
+  margin-top: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+}
+
+.card {
+  width: 360px;
+  border: 1px solid #808080;
+  overflow: hidden;
+}
+
+img {
+  display: block;
+  width: 360px;
+  height: 152px;
+  object-fit: cover;
+}
+
+.description {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.description li {
+  text-align: center;
+  font-weight: 600;
+  padding: 4px 0;
+}
+
+.description li span {
+  font-weight: 400;
+}
+
+
+.inputFild {
+  width: 272px;
+  height: 40px;
+  border: 1px solid #ccc;
+  border-radius: 8px 8px 8px 8px;
+  padding: 0 10px;
+  font-size: 16px;
+}
+
+.btnSearchImg,
+.btnLoadMore {
+  width: 100px;
+  height: 42px;
+  border: none;
+  border-radius: 8px 8px 8px 8px;
+  background-color: #4E75FF;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btnLoadMore:hover,
+.btnSearchImg:hover {
+  background-color: #6C8CFF;
+}
+
+.btnLoadMore {
+  margin-top: 24px;
+}
+
+.active {
+  display: none;
+}
