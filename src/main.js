@@ -33,7 +33,6 @@ const params = {
 
 inputFieldEl.addEventListener('input', event => {
   searchImg = event.target.value.trim();
-  console.log(searchImg);
   if (searchImg === '') {
     btnSearchImgEl.disabled = true;
     return;
