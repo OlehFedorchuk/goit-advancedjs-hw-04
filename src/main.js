@@ -33,17 +33,22 @@ const params = {
 
 inputFieldEl.addEventListener('input', event => {
   searchImg = event.target.value.trim();
-  btnSearchImgEl.disabled = searchImg === '';
+  console.log(searchImg);
+  if (searchImg === '') {
+    btnSearchImgEl.disabled = true;
+    return;
+  }
+  btnSearchImgEl.disabled = false;
 });
 
 formEl.addEventListener('submit', async event => {
   event.preventDefault();
+  btnSearchImgEl.disabled = true;
 
   page = 1;
   params.page = 1;
   params.q = searchImg;
   galleryEl.innerHTML = '';
-  btnSearchImgEl.disabled = true;
   btnLoadMoreEl.hidden = true;
   showLoader();
 
@@ -73,7 +78,6 @@ formEl.addEventListener('submit', async event => {
     btnLoadMoreEl.hidden = true;
   } finally {
     inputFieldEl.value = '';
-    btnSearchImgEl.disabled = false;
   }
 });
 
