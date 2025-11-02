@@ -15,7 +15,6 @@ const galleryEl = document.querySelector('.gallery');
 btnSearchImgEl.disabled = true;
 
 let page = 1;
-let count = 0;
 let searchImg = '';
 
 hideLoader();
@@ -44,13 +43,10 @@ inputFieldEl.addEventListener('input', event => {
 formEl.addEventListener('submit', event => {
   event.preventDefault();
   inputFieldEl.value = '';
-
   btnSearchImgEl.disabled = true;
-  btnLoadMoreEl.classList.add('active');
-
   galleryEl.innerHTML = '';
-
   showLoader();
+  btnLoadMoreEl.classList.add('active');
 
   axiosSearchImg(params)
     .then(data => {
@@ -79,18 +75,22 @@ btnLoadMoreEl.addEventListener('click', () => {
 
   axiosSearchImg(params)
     .then(data => {
-      count += params.per_page;
-      if (count >= data.totalHits) {
+      if (data.hits.length === 0) {
         btnLoadMoreEl.classList.add('active');
-        messageError(
-          "We're sorry, but you've reached the end of search results."
-        );
+
         hideLoader();
         return;
       }
       renderTemplate(data);
       btnLoadMoreEl.classList.remove('active');
+      if (data.hits.length < params.per_page) {
+        btnLoadMoreEl.classList.add('active');
+        messageError(
+          "We're sorry, but you've reached the end of search results."
+        );
+      }
       hideLoader();
+
       const { height } = galleryEl.getBoundingClientRect();
       window.scrollBy({
         top: height - 100,
