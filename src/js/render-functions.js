@@ -50,9 +50,13 @@ export function showLoader() {
   loaderEl.style.display = 'block';
 }
 export function messageError(message) {
-  return iziToast.show({
-    position: 'topRight',
-    color: 'red',
+  return iziToast.error({
+    title: 'Error',
     message: message,
+    position: 'topRight',
+    timeout: 4000,
+    closeOnClick: true,
+    transitionIn: 'fadeInDown',
+    transitionOut: 'fadeOutUp',
   });
 }

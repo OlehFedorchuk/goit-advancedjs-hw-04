@@ -12,12 +12,14 @@ const btnSearchImgEl = document.querySelector('.btnSearchImg');
 const btnLoadMoreEl = document.querySelector('.btnLoadMore');
 const galleryEl = document.querySelector('.gallery');
 
+btnLoadMoreEl.hidden = true;
 btnSearchImgEl.disabled = true;
+
+hideLoader();
 
 let page = 1;
 let searchImg = '';
-
-hideLoader();
+let totalHits = 0;
 
 const params = {
   key: '52935594-c28acfca0b14dad36f3e3eac1',
@@ -26,78 +28,92 @@ const params = {
   orientation: 'horizontal',
   safesearch: true,
   per_page: 15,
-  page: page,
+  page: 1,
 };
 
 inputFieldEl.addEventListener('input', event => {
   searchImg = event.target.value.trim();
-  if (searchImg === '') {
-    btnSearchImgEl.disabled = true;
-    return;
-  }
-  btnSearchImgEl.disabled = false;
-  params.q = searchImg;
-  params.page = 1;
+  btnSearchImgEl.disabled = searchImg === '';
 });
 
-formEl.addEventListener('submit', event => {
+formEl.addEventListener('submit', async event => {
   event.preventDefault();
-  inputFieldEl.value = '';
-  btnSearchImgEl.disabled = true;
+
+  page = 1;
+  params.page = 1;
+  params.q = searchImg;
   galleryEl.innerHTML = '';
+  btnSearchImgEl.disabled = true;
+  btnLoadMoreEl.hidden = true;
   showLoader();
-  btnLoadMoreEl.classList.add('active');
 
-  axiosSearchImg(params)
-    .then(data => {
-      if (data.totalHits === 0) {
-        btnLoadMoreEl.classList.add('active');
-        hideLoader();
-        messageError(
-          'Sorry, there are no images matching your search query. Please try again!'
-        );
+  try {
+    const data = await axiosSearchImg(params);
 
-        return;
-      }
-      renderTemplate(data);
+    totalHits = Number(data?.totalHits ?? 0);
+
+    if (!totalHits) {
       hideLoader();
-      btnLoadMoreEl.classList.remove('active');
-    })
-    .catch(error => {
-      console.error('Failed to load images:', error);
-    });
+      messageError(
+        'Sorry, there are no images matching your search query. Please try again!'
+      );
+      return;
+    }
+
+    renderTemplate(data);
+    hideLoader();
+
+    const hasMore =
+      page * params.per_page < totalHits &&
+      data.hits.length === params.per_page;
+    btnLoadMoreEl.hidden = !hasMore;
+  } catch (error) {
+    console.error('Failed to load images:', error);
+    hideLoader();
+    btnLoadMoreEl.hidden = true;
+  } finally {
+    inputFieldEl.value = '';
+    btnSearchImgEl.disabled = false;
+  }
 });
 
-btnLoadMoreEl.addEventListener('click', () => {
-  btnLoadMoreEl.classList.add('active');
+btnLoadMoreEl.addEventListener('click', async () => {
+  btnLoadMoreEl.hidden = true;
   showLoader();
-  params.page += 1;
 
-  axiosSearchImg(params)
-    .then(data => {
-      if (data.hits.length === 0) {
-        btnLoadMoreEl.classList.add('active');
+  try {
+    page += 1;
+    params.page = page;
 
-        hideLoader();
-        return;
-      }
-      renderTemplate(data);
-      btnLoadMoreEl.classList.remove('active');
-      if (data.hits.length < params.per_page) {
-        btnLoadMoreEl.classList.add('active');
-        messageError(
-          "We're sorry, but you've reached the end of search results."
-        );
-      }
+    const data = await axiosSearchImg(params);
+
+    if (!data?.hits?.length) {
       hideLoader();
+      messageError(
+        "We're sorry, but you've reached the end of search results."
+      );
+      return;
+    }
 
-      const { height } = galleryEl.getBoundingClientRect();
-      window.scrollBy({
-        top: height - 100,
-        behavior: 'smooth',
-      });
-    })
-    .catch(error => {
-      console.error('Failed to load images:', error);
-    });
+    renderTemplate(data);
+    const reachedEnd =
+      page * params.per_page >= totalHits || data.hits.length < params.per_page;
+
+    btnLoadMoreEl.hidden = reachedEnd;
+
+    if (reachedEnd) {
+      messageError(
+        "We're sorry, but you've reached the end of search results."
+      );
+    }
+
+    hideLoader();
+
+    const { height } = galleryEl.getBoundingClientRect();
+    window.scrollBy({ top: height - 100, behavior: 'smooth' });
+  } catch (error) {
+    console.error('Failed to load images:', error);
+    hideLoader();
+    btnLoadMoreEl.hidden = true;
+  }
 });
