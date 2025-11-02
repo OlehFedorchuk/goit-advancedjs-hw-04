@@ -1,5 +1,6 @@
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import SimpleLightbox from 'simplelightbox';
+import iziToast from 'izitoast';
 
 const loaderEl = document.querySelector('.loader');
 
@@ -47,4 +48,11 @@ export function hideLoader() {
 }
 export function showLoader() {
   loaderEl.style.display = 'block';
+}
+export function messageError(message) {
+  return iziToast.show({
+    position: 'topRight',
+    color: 'red',
+    message: message,
+  });
 }

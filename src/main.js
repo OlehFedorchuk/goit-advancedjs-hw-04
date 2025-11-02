@@ -1,6 +1,10 @@
-import { axiosImages } from './js/pixabay-api';
-import { hideLoader, renderTemplate, showLoader } from './js/render-functions';
-import iziToast from 'izitoast';
+import { axiosSearchImg } from './js/pixabay-api';
+import {
+  hideLoader,
+  messageError,
+  renderTemplate,
+  showLoader,
+} from './js/render-functions';
 
 const formEl = document.querySelector('.form');
 const inputFieldEl = document.querySelector('.inputFild');
@@ -11,7 +15,6 @@ const galleryEl = document.querySelector('.gallery');
 btnSearchImgEl.disabled = true;
 
 let page = 1;
-let secondSearch = '';
 let count = 0;
 let searchImg = '';
 
@@ -45,26 +48,18 @@ formEl.addEventListener('submit', event => {
   btnSearchImgEl.disabled = true;
   btnLoadMoreEl.classList.add('active');
 
-  secondSearch = searchImg;
-  if (searchImg === '') {
-    return;
-  } else if (secondSearch === searchImg) {
-    galleryEl.innerHTML = '';
-  }
+  galleryEl.innerHTML = '';
 
   showLoader();
 
-  axiosImages(params)
+  axiosSearchImg(params)
     .then(data => {
       if (data.totalHits === 0) {
         btnLoadMoreEl.classList.add('active');
         hideLoader();
-        iziToast.show({
-          position: 'topRight',
-          color: 'red',
-          message:
-            'Sorry, there are no images matching your search query. Please try again!',
-        });
+        messageError(
+          'Sorry, there are no images matching your search query. Please try again!'
+        );
 
         return;
       }
@@ -82,21 +77,15 @@ btnLoadMoreEl.addEventListener('click', () => {
   showLoader();
   params.page += 1;
 
-  axiosImages(params)
+  axiosSearchImg(params)
     .then(data => {
       count += params.per_page;
-
       if (count >= data.totalHits) {
         btnLoadMoreEl.classList.add('active');
-        iziToast.show({
-          position: 'topRight',
-          color: 'red',
-          message: "We're sorry, but you've reached the end of search results.",
-        });
-        hideLoader();
-        console.log(
+        messageError(
           "We're sorry, but you've reached the end of search results."
         );
+        hideLoader();
         return;
       }
       renderTemplate(data);
